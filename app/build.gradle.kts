@@ -60,6 +60,8 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)    //Navegation
     implementation(libs.kotlinx.serialization.json)     //Navegation
+    implementation(libs.androidx.navigation.compose)    // Navigation Compose
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

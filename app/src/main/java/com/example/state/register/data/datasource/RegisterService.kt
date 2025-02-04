@@ -15,7 +15,7 @@ interface RegisterService {
     @GET("api/auth/validateUsername")
     suspend fun validateUsername() : Response<UsernameValidateDTO>
 
-    @POST("api/auth/register")
+    @POST("auth/register")
     suspend fun createUser(@Body request : CreateUserRequest) : Response<UserDTO>
 
 }

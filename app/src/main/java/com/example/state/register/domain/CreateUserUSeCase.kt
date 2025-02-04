@@ -4,14 +4,18 @@ import com.example.state.register.data.model.CreateUserRequest
 import com.example.state.register.data.model.UserDTO
 import com.example.state.register.data.model.UsernameValidateDTO
 import com.example.state.register.data.repository.RegisterRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class CreateUserUSeCase {
-    private  val repository = RegisterRepository()
+class CreateUserUSeCase(private val registerRepository: RegisterRepository) {
 
-    suspend operator fun invoke(user: CreateUserRequest) : Result<UserDTO> {
-        val result = repository.createUser(user)
-
-        //En caso de existir acá debe estar la lógica de negocio
-        return result
+    // Esta función recibe un CreateUserRequest y devuelve el resultado de registrar al usuario
+    suspend operator fun invoke(user: CreateUserRequest) = withContext(Dispatchers.IO) {
+        try {
+            val response = registerRepository.registerUser(user) // Hacemos el llamado al repositorio
+            response
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

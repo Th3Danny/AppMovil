@@ -51,54 +51,66 @@ fun RegisterScreen(
     modifier: Modifier,
     navigateBackToLogin: () -> Unit
 ) {
-    val username:String by registerViewModel.username.observeAsState("")
-    val password:String by registerViewModel.password.observeAsState("")
-    val success:Boolean by registerViewModel.success.observeAsState(false)
-    val error:String by registerViewModel.error.observeAsState("")
+    val nombre: String by registerViewModel.nombre.observeAsState("")
+    val correo: String by registerViewModel.correo.observeAsState("") // Es necesario cambiar el nombre del campo 'correo' en el ViewModel
+    val password: String by registerViewModel.password.observeAsState("")
+    val success: Boolean by registerViewModel.success.observeAsState(false)
+    val error: String by registerViewModel.error.observeAsState("")
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     Column(
-     modifier = Modifier
-         .fillMaxSize()
-         .background(Color.Blue),
-     verticalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Blue),
+        verticalArrangement = Arrangement.Center
     ) {
-         Text(
-             modifier = Modifier.fillMaxWidth(),
-             textAlign = TextAlign.Center,
-             text = "Create Account",
-             fontSize = 40.sp,
-             fontWeight = FontWeight.Bold,
-             color = Color.Gray
-         )
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            text = "Create Account",
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Gray
+        )
         Spacer(modifier = Modifier.height(30.dp))
-         TextField(
-             value = username,
-             onValueChange = { registerViewModel.onChangeUsername(it)},
-             label = { Text("Username") },
-             shape = RoundedCornerShape(10.dp),
-             placeholder = { Text("Gerson") },
-             leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Person Icon")},
-             modifier = Modifier.fillMaxWidth()
-                 .padding(horizontal = 10.dp)
-                 .onFocusChanged { focusState ->
-                     registerViewModel.viewModelScope.launch {
-                         if (!focusState.isFocused && username.isNotEmpty()) {
-                            Log.e("Data", "Ingreso")
-                             registerViewModel.onFocusChanged()
-                         }
-                     }
-                 }
-         )
+
+        // Campo para nombre
+        TextField(
+            value = nombre,
+            onValueChange = { registerViewModel.onChangeUsername(it) },
+            label = { Text("Nombre") },
+            shape = RoundedCornerShape(10.dp),
+            placeholder = { Text("Juan Pérez") },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Person Icon") },
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 10.dp)
+        )
         Spacer(Modifier.height(10.dp))
+
+        // Campo para correo
+        TextField(
+            value = correo,
+            onValueChange = { registerViewModel.onChangeCorreo(it) }, // Asegúrate de tener un método onChangeCorreo en tu ViewModel
+            label = { Text("Correo") },
+            shape = RoundedCornerShape(10.dp),
+            placeholder = { Text("juan@example.com") },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Correo Icon") },
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 10.dp)
+        )
+        Spacer(Modifier.height(10.dp))
+
+        // Mostrar error
         Text(text = error)
+
+        // Campo para contraseña
         TextField(
             value = password,
             onValueChange = { registerViewModel.onChangePassword(it) },
             label = { Text("Password") },
             shape = RoundedCornerShape(10.dp),
             placeholder = { Text("Password") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock Icon")},
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock Icon") },
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Password,
@@ -116,26 +128,35 @@ fun RegisterScreen(
                 .padding(horizontal = 10.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
+
+
+        // Botón de registro
         Button(
             onClick = {
-                val user = CreateUserRequest(username, password)
+                // Crear el objeto de usuario con los datos ingresados
+                val user = CreateUserRequest(nombre, correo, password)
+                // Llamada al método onClick para registrar al usuario
                 registerViewModel.viewModelScope.launch {
                     registerViewModel.onClick(user)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
-            .padding(horizontal = 10.dp)
-            .height(50.dp),
-            enabled = success,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+                .height(50.dp),
+            enabled = nombre.isNotEmpty() && correo.isNotEmpty() && password.isNotEmpty(), // Botón habilitado solo si los campos no están vacíos
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
-                contentColor = Color.Black),
+                contentColor = Color.Black
+            ),
             shape = RoundedCornerShape(10.dp)
-            ) {
-            Text(text = "Sign up",
+        ) {
+            Text(
+                text = "Sign up",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold)
+                fontWeight = FontWeight.Bold
+            )
         }
- }
 
+    }
 }

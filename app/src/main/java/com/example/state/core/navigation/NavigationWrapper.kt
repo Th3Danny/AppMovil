@@ -11,6 +11,11 @@ import com.example.state.login.presentation.LoginViewModel
 import com.example.state.login.presentation.LoginViewModelFactory
 import com.example.state.login.domain.LoginUseCase
 import com.example.state.login.data.repository.LoginRepository
+import com.example.state.register.data.repository.RegisterRepository
+import com.example.state.register.domain.CreateUserUSeCase
+import com.example.state.register.presentation.RegisterScreen
+import com.example.state.register.presentation.RegisterViewModel
+import com.example.state.register.presentation.RegisterViewModelFactory
 
 @Composable
 fun NavigationWrapper() {
@@ -19,6 +24,9 @@ fun NavigationWrapper() {
     // Crear el LoginUseCase y LoginRepository
     val loginRepository = LoginRepository() // Reemplaza con la instancia real de tu repositorio
     val loginUseCase = LoginUseCase(loginRepository)
+
+    val registerRepository = RegisterRepository()
+    val createUserUseCase = CreateUserUSeCase(registerRepository)
 
     NavHost(navController = navController, startDestination = "Login") {
         composable("Login") {
@@ -35,7 +43,14 @@ fun NavigationWrapper() {
             )
         }
         composable("Register") {
-            // Aquí va el código para la pantalla de registro
+            val registerViewModel: RegisterViewModel = viewModel(
+                factory = RegisterViewModelFactory(createUserUseCase, registerRepository)
+            )
+            RegisterScreen(
+                registerViewModel = registerViewModel,
+                modifier = Modifier,
+                navigateBackToLogin = { navController.navigate("Login") }
+            )
         }
     }
 }
