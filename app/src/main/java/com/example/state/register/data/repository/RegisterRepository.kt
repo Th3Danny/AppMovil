@@ -33,10 +33,8 @@ class RegisterRepository {
             val response = registerService.validateUsername()
 
             if (response.isSuccessful) {
-                // Retornamos el resultado exitoso con el cuerpo de la respuesta
                 Result.success(response.body()!!)
             } else {
-                // Si la respuesta no es exitosa, retornamos un error
                 Result.failure(Exception("Error al validar el nombre de usuario"))
             }
         } catch (e: Exception) {

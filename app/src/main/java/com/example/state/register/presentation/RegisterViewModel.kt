@@ -11,8 +11,8 @@ import com.example.state.register.domain.CreateUserUSeCase
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
-    private val createUserUseCase: CreateUserUSeCase,  // Aquí es donde se necesita usar el caso de uso
-    private val registerRepository: RegisterRepository // El repositorio sigue siendo útil para validaciones
+    private val createUserUseCase: CreateUserUSeCase,
+    private val registerRepository: RegisterRepository
 ) : ViewModel() {
 
     private var _nombre = MutableLiveData<String>("")

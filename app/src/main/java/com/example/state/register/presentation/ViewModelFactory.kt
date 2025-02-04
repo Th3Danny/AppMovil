@@ -7,7 +7,7 @@ import com.example.state.register.domain.CreateUserUSeCase
 
 class RegisterViewModelFactory(
     private val createUserUseCase: CreateUserUSeCase,
-    private val registerRepository: RegisterRepository // Agregar el repositorio
+    private val registerRepository: RegisterRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {

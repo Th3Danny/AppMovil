@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun LoginScreen(
-    loginViewModel: LoginViewModel, // Asegúrate de que este parámetro esté definido
-    modifier: Modifier = Modifier,  // Asegúrate de que este parámetro también esté definido
+    loginViewModel: LoginViewModel,
+    modifier: Modifier = Modifier,
     onNavigateToRegister: () -> Unit,
     onNavigateToHome: () -> Unit
 ) {

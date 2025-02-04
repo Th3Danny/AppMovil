@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.state.register.data.model.CreateUserRequest
 import kotlinx.coroutines.launch
+import androidx.compose.material3.MaterialTheme
+
 
 //@Preview(showBackground = true)
 @Composable
@@ -52,64 +54,75 @@ fun RegisterScreen(
     navigateBackToLogin: () -> Unit
 ) {
     val nombre: String by registerViewModel.nombre.observeAsState("")
-    val correo: String by registerViewModel.correo.observeAsState("") // Es necesario cambiar el nombre del campo 'correo' en el ViewModel
+    val correo: String by registerViewModel.correo.observeAsState("")
     val password: String by registerViewModel.password.observeAsState("")
     val success: Boolean by registerViewModel.success.observeAsState(false)
     val error: String by registerViewModel.error.observeAsState("")
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(Color.Blue),
+            .background(Color(0xFFF5F5F5))
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
+        // Título de la pantalla
         Text(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            text = "Create Account",
-            fontSize = 40.sp,
+            text = "Crear Cuenta",
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Gray
+            color = Color(0xFF6200EE)
         )
-        Spacer(modifier = Modifier.height(30.dp))
 
-        // Campo para nombre
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Campo para nombre de usuario
         TextField(
             value = nombre,
             onValueChange = { registerViewModel.onChangeUsername(it) },
             label = { Text("Nombre") },
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(12.dp), // Bordes redondeados
             placeholder = { Text("Juan Pérez") },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Person Icon") },
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 10.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
-        Spacer(Modifier.height(10.dp))
 
-        // Campo para correo
+        // Campo para correo electrónico
         TextField(
             value = correo,
-            onValueChange = { registerViewModel.onChangeCorreo(it) }, // Asegúrate de tener un método onChangeCorreo en tu ViewModel
-            label = { Text("Correo") },
-            shape = RoundedCornerShape(10.dp),
+            onValueChange = { registerViewModel.onChangeCorreo(it) },
+            label = { Text("Correo Electrónico") },
+            shape = RoundedCornerShape(12.dp),
             placeholder = { Text("juan@example.com") },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Correo Icon") },
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 10.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
-        Spacer(Modifier.height(10.dp))
 
-        // Mostrar error
-        Text(text = error)
+        Spacer(Modifier.height(8.dp))
 
-        // Campo para contraseña
+        // Mensaje de error
+        if (error.isNotEmpty()) {
+            Text(
+                text = error,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        // Campo para la contraseña
         TextField(
             value = password,
             onValueChange = { registerViewModel.onChangePassword(it) },
-            label = { Text("Password") },
-            shape = RoundedCornerShape(10.dp),
-            placeholder = { Text("Password") },
+            label = { Text("Contraseña") },
+            shape = RoundedCornerShape(12.dp),
+            placeholder = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock Icon") },
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions.Default.copy(
@@ -124,18 +137,17 @@ fun RegisterScreen(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 10.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
         )
-        Spacer(modifier = Modifier.height(20.dp))
 
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Botón de registro
         Button(
             onClick = {
-                // Crear el objeto de usuario con los datos ingresados
                 val user = CreateUserRequest(nombre, correo, password)
-                // Llamada al método onClick para registrar al usuario
                 registerViewModel.viewModelScope.launch {
                     registerViewModel.onClick(user)
                 }
@@ -144,19 +156,18 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp)
                 .height(50.dp),
-            enabled = nombre.isNotEmpty() && correo.isNotEmpty() && password.isNotEmpty(), // Botón habilitado solo si los campos no están vacíos
+            enabled = nombre.isNotEmpty() && correo.isNotEmpty() && password.isNotEmpty(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
+                containerColor = Color(0xFF6200EE),
+                contentColor = Color.White
             ),
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = "Sign up",
+                text = "Registrarse",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
         }
-
     }
 }
