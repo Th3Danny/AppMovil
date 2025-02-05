@@ -22,7 +22,7 @@ class ProductViewModel(
     val error: LiveData<String> get() = _error
 
     init {
-        loadProducts() // Llamada a la función para cargar los productos cuando se crea el ViewModel
+        loadProducts()
     }
 
     // Función privada para cargar productos

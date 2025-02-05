@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.state.login.domain.LoginUseCase
 import com.example.state.login.data.model.LoginRequest
-import com.example.state.login.data.repository.LoginRepository
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {

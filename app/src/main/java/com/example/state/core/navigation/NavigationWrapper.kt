@@ -51,7 +51,7 @@ fun NavigationWrapper() {
                 modifier = Modifier,
                 onNavigateToRegister = { navController.navigate(Register::class.java.simpleName) },
                 onNavigateToHome = {
-                    // Si el login es exitoso, navegamos a la pantalla de productos
+
                     navController.navigate(Product::class.java.simpleName)
                 }
             )

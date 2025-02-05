@@ -30,7 +30,7 @@ fun LoginScreen(
     // Redirección automática si el login es exitoso
     LaunchedEffect(success) {
         if (success) {
-            onNavigateToHome() // Navega a la pantalla de productos
+            onNavigateToHome()
         }
     }
 
