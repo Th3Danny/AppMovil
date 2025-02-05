@@ -27,6 +27,14 @@ fun LoginScreen(
     val error: String by loginViewModel.error.observeAsState("")
     val success: Boolean by loginViewModel.success.observeAsState(false)
 
+    // Redirección automática si el login es exitoso
+    LaunchedEffect(success) {
+        if (success) {
+            onNavigateToHome() // Navega a la pantalla de productos
+        }
+    }
+
+
     Column(
         modifier = modifier
             .fillMaxSize()
