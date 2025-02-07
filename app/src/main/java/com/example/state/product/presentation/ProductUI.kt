@@ -73,10 +73,21 @@ fun ProductScreen(
 
                     Button(
                         onClick = {
-                            // Crear el objeto de producto con los datos ingresados
-                            val newProduct = CreateProductRequest(productName, productPrice.toDouble(), productQuantity.toInt())
+
+                            val newProduct = CreateProductRequest(
+                                productName,
+                                productPrice.toDouble(),
+                                productQuantity.toInt()
+                            )
                             productViewModel.addProduct(newProduct)
-                            showForm = false  // Ocultamos el formulario después de agregar el producto
+
+                            // Limpiar los campos después de guardar
+                            productName = ""
+                            productPrice = ""
+                            productQuantity = ""
+
+                            // Ocultamos el formulario después de agregar el producto
+                            showForm = false
                         },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = productName.isNotEmpty() && productPrice.isNotEmpty() && productQuantity.isNotEmpty()
@@ -86,6 +97,7 @@ fun ProductScreen(
                 }
             }
         }
+
 
         // Botón para mostrar el formulario de agregar producto
         Button(
