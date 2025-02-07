@@ -1,5 +1,6 @@
 package com.example.state.core.network
 
+import com.example.state.camera.data.datasource.CameraService
 import com.example.state.register.data.datasource.RegisterService
 import com.example.state.login.data.datasource.LoginService
 import com.example.state.product.data.datasource.ProductService
@@ -7,7 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitHelper {
-    private const val BASE_URL = "http://192.168.73.38:3002/api/"
+    private const val BASE_URL = "http://192.168.100.8:3002/api/"
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

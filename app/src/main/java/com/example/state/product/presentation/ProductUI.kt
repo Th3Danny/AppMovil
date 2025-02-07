@@ -22,7 +22,8 @@ import com.example.state.product.data.model.ProductDTO
 
 @Composable
 fun ProductScreen(
-    productViewModel: ProductViewModel = viewModel()
+    productViewModel: ProductViewModel = viewModel(),
+    navigateToCamera: () -> Unit
 ) {
     val products: List<ProductDTO> by productViewModel.products.observeAsState(emptyList())
     val error: String by productViewModel.error.observeAsState("")
@@ -120,6 +121,14 @@ fun ProductScreen(
                     }
                 }
             }
+        }
+
+        // Botón para navegar a la pantalla de la cámara
+        Button(
+            onClick = { navigateToCamera() },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+        ) {
+            Text("Abrir Cámara")
         }
 
         // Mostrar error si lo hay
