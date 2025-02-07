@@ -9,9 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface RegisterService {
-    /*@GET("users/{username}")
-    suspend fun validateUsername(@Path("username") username : String) : Response<UsernameValidateDTO>
-    */
+
     @GET("api/auth/validateUsername")
     suspend fun validateUsername() : Response<UsernameValidateDTO>
 

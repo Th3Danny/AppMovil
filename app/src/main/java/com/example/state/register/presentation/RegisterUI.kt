@@ -44,6 +44,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.state.register.data.model.CreateUserRequest
 import kotlinx.coroutines.launch
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 
 
 //@Preview(showBackground = true)
@@ -51,14 +52,22 @@ import androidx.compose.material3.MaterialTheme
 fun RegisterScreen(
     registerViewModel: RegisterViewModel,
     modifier: Modifier,
-    navigateBackToLogin: () -> Unit
+    navigateBackToLogin: () -> Unit // Navegación de vuelta al login
 ) {
     val nombre: String by registerViewModel.nombre.observeAsState("")
     val correo: String by registerViewModel.correo.observeAsState("")
     val password: String by registerViewModel.password.observeAsState("")
     val success: Boolean by registerViewModel.success.observeAsState(false)
     val error: String by registerViewModel.error.observeAsState("")
+
     var isPasswordVisible by remember { mutableStateOf(false) }
+
+    // Navegar a la pantalla de login cuando se registre con éxito
+    if (success) {
+        LaunchedEffect(success) {
+            navigateBackToLogin()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -84,7 +93,7 @@ fun RegisterScreen(
             value = nombre,
             onValueChange = { registerViewModel.onChangeUsername(it) },
             label = { Text("Nombre") },
-            shape = RoundedCornerShape(12.dp), // Bordes redondeados
+            shape = RoundedCornerShape(12.dp),
             placeholder = { Text("Juan Pérez") },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Person Icon") },
             modifier = Modifier
@@ -148,9 +157,7 @@ fun RegisterScreen(
         Button(
             onClick = {
                 val user = CreateUserRequest(nombre, correo, password)
-                registerViewModel.viewModelScope.launch {
-                    registerViewModel.onClick(user)
-                }
+                registerViewModel.onClick(user) // Ejecuta el registro
             },
             modifier = Modifier
                 .fillMaxWidth()

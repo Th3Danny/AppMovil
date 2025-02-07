@@ -1,8 +1,6 @@
 package com.example.state.register.domain
 
 import com.example.state.register.data.model.CreateUserRequest
-import com.example.state.register.data.model.UserDTO
-import com.example.state.register.data.model.UsernameValidateDTO
 import com.example.state.register.data.repository.RegisterRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
