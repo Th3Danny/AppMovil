@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,9 +53,10 @@ fun NavigationWrapper() {
 
     // Crear los casos de uso y ViewModels para la cámara
     val context = LocalContext.current // Obtener el contexto actual
+    val lifecycleOwner = LocalLifecycleOwner.current // Obtener el lifecycleOwner
 
-    // Crear una instancia de CameraService con el contexto
-    val cameraService = CameraService(lifecycleOwner = context as LifecycleOwner)
+    // Crear una instancia de CameraService con el contexto y lifecycleOwner
+    val cameraService = CameraService(context)  // Se pasa el contexto
     // Crear el repositorio de cámara pasando el servicio y el contexto
     val cameraRepository = CameraRepository(cameraService, context)
     val cameraUseCase = CameraUseCase(cameraRepository)
@@ -105,5 +107,4 @@ fun NavigationWrapper() {
         }
     }
 }
-
 

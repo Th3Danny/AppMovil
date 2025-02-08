@@ -42,10 +42,11 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
-androidx-camera-core = "androidx.camera:camera-core:${versions.cameraX}"
-androidx-camera-camera2 = "androidx.camera:camera-camera2:${versions.cameraX}"
-androidx-camera-lifecycle = "androidx.camera:camera-lifecycle:${versions.cameraX}"
-androidx-camera-view = "androidx.camera:camera-view:1.4.1"
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraX" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version = "1.4.1" }
+
 
 # Iconos de Material 2
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material2" }
