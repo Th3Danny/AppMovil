@@ -1,6 +1,11 @@
 package com.example.state.core.navigation
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,7 +44,7 @@ import com.example.state.register.presentation.RegisterViewModelFactory
 fun NavigationWrapper() {
     val navController = rememberNavController()
 
-    // Crear el LoginUseCase y LoginRepository
+    // Crear los casos de uso para login y registro
     val loginRepository = LoginRepository()
     val loginUseCase = LoginUseCase(loginRepository)
 
@@ -51,14 +56,10 @@ fun NavigationWrapper() {
     val getProductsUseCase = GetProductsUseCase(productRepository)
     val createProductUseCase = CreateProductUseCase(productRepository)
 
-    // Crear los casos de uso y ViewModels para la cámara
-    val context = LocalContext.current // Obtener el contexto actual
-    val lifecycleOwner = LocalLifecycleOwner.current // Obtener el lifecycleOwner
-
-    // Crear una instancia de CameraService con el contexto y lifecycleOwner
-    val cameraService = CameraService(context)  // Se pasa el contexto
-    // Crear el repositorio de cámara pasando el servicio y el contexto
-    val cameraRepository = CameraRepository(cameraService, context)
+    // Configurar la cámara correctamente
+    val context = LocalContext.current
+    val cameraService = CameraService(context)
+    val cameraRepository = CameraRepository(cameraService) // ❌ Eliminado el `context`
     val cameraUseCase = CameraUseCase(cameraRepository)
 
     // Crear el factory y ViewModel para la cámara
@@ -100,10 +101,8 @@ fun NavigationWrapper() {
         }
 
         composable("Camera") {
-            // Usamos CameraViewModel para pasar la cámara a la UI
             val cameraViewModel: CameraViewModel = viewModel(factory = cameraViewModelFactory)
-
-            CameraScreen(cameraViewModel = cameraViewModel) // Pasamos el cameraViewModel a la pantalla de la cámara
+            CameraScreen(cameraViewModel = cameraViewModel) // ✅ Ahora se usa correctamente
         }
     }
 }

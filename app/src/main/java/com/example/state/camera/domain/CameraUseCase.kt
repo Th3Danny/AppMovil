@@ -1,30 +1,24 @@
 package com.example.state.camera.domain
 
-import androidx.camera.core.ImageCapture
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.core.Preview
-import androidx.camera.view.PreviewView
+import android.content.Context
+import android.net.Uri
+import com.example.state.camera.data.datasource.CameraService
 import com.example.state.camera.data.repository.CameraRepository
-import com.example.state.camera.data.model.CameraCaptureResult
+import java.io.File
 
-import androidx.lifecycle.LifecycleOwner
 
 class CameraUseCase(private val cameraRepository: CameraRepository) {
 
-    // Método para iniciar la cámara
-    suspend fun startCamera(
-        lifecycleOwner: LifecycleOwner,
-        cameraProvider: ProcessCameraProvider,
-        preview: Preview,
-        previewView: PreviewView
-    ) {
-        cameraRepository.startCamera(lifecycleOwner, cameraProvider, preview, previewView)
-    }
-
-    // Método para capturar la imagen
-    suspend fun captureImage(): CameraCaptureResult {
-        return cameraRepository.captureImage()  // Llamamos sin pasar parámetros
+    // ✅ Ahora recibe context como parámetro y lo pasa al repositorio
+    fun getPhotoUri(context: Context): Pair<Uri, String>? {
+        return cameraRepository.getPhotoUri(context)?.let { uri ->
+            val filePath = File(uri.path!!).absolutePath
+            Pair(uri, filePath)
+        }
     }
 }
+
+
+
 
 

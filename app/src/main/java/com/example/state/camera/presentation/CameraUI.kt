@@ -1,70 +1,139 @@
 package com.example.state.camera.presentation
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.camera.view.PreviewView
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.state.camera.data.datasource.CameraService
-import com.example.state.camera.data.model.CameraCaptureResult
-import java.io.File
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import java.io.File
 
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CameraScreen(cameraViewModel: CameraViewModel = viewModel()) {
-    var captureResult by remember { mutableStateOf<CameraCaptureResult?>(null) }
+fun CameraScreen(cameraViewModel: CameraViewModel) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraProvider = remember { ProcessCameraProvider.getInstance(context) }
-    val preview = remember { Preview.Builder().build() }
-    val previewView = remember { PreviewView(context) }
+    val activity = context as? Activity
 
-    // Configurar la cámara
-    LaunchedEffect(Unit) {
-        val cameraProviderInstance = cameraProvider.get()
-        cameraProviderInstance.unbindAll()
+    val captureResult by cameraViewModel.captureResult.observeAsState()
 
-        // Configurar la cámara
-        cameraViewModel.startCamera(lifecycleOwner, cameraProviderInstance, preview, previewView)
+    // Estado para verificar permisos
+    var hasPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+        )
+    }
 
-        preview.setSurfaceProvider(previewView.surfaceProvider) // Asignar el SurfaceProvider para la vista previa
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        hasPermission = permissions[Manifest.permission.CAMERA] == true &&
+                permissions[Manifest.permission.READ_MEDIA_IMAGES] == true
+    }
+
+    // Solicitar permisos si no están concedidos
+    if (!hasPermission) {
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+        )
+    }
+
+    // Registrar el ActivityResultLauncher
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        cameraViewModel.handleCameraResult(result.resultCode) // Llamar a handleCameraResult
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(
-            onClick = {
-                cameraViewModel.captureImage()  // Llamamos a captureImage después de que la cámara esté configurada
-            },
-            modifier = Modifier.padding(bottom = 16.dp)
-        ) {
-            Text(text = "Capturar Imagen")
-        }
+        if (hasPermission) {
+            // Botón para abrir la cámara
+            Button(onClick = {
+                val intent = cameraViewModel.getCameraIntent(context)
+                if (intent != null) {
+                    cameraLauncher.launch(intent) // Lanzar el Intent de la cámara
+                } else {
+                    Log.e("CameraScreen", "❌ No se pudo generar el Intent de cámara.")
+                }
+            }) {
+                Text(text = "Capturar Imagen")
+            }
 
-        captureResult?.let {
-            if (it.success) {
-                Text("Imagen guardada en: ${it.imageUri}")
-            } else {
-                Text("Error al capturar la imagen", color = MaterialTheme.colorScheme.error)
+            captureResult?.let { result ->
+                if (result.success) {
+                    val imageFile = File(result.imageUri) // Usamos la ruta absoluta directamente
+                    if (imageFile.exists()) {
+                        val imageBitmap = BitmapFactory.decodeFile(imageFile.absolutePath)?.asImageBitmap()
+                        if (imageBitmap != null) {
+                            Image(
+                                bitmap = imageBitmap,
+                                contentDescription = "Imagen capturada",
+                                modifier = Modifier.size(200.dp)
+                            )
+                        } else {
+                            Log.e("CameraScreen", "❌ No se pudo cargar el bitmap de la imagen.")
+                            Text("Error al cargar la imagen", color = MaterialTheme.colorScheme.error)
+                        }
+                    } else {
+                        Log.e("CameraScreen", "❌ Archivo de imagen no encontrado en: ${imageFile.absolutePath}")
+                        Text("Archivo no encontrado", color = MaterialTheme.colorScheme.error)
+                    }
+                } else {
+                    Text(
+                        text = "Error al capturar la imagen",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+
+
+        } else {
+            Text(
+                text = "Se necesita permiso para usar la cámara",
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(onClick = {
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    )
+                )
+            }) {
+                Text("Solicitar Permisos")
             }
         }
-
-        // Vista previa de la cámara
-        AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
     }
 }
-
-

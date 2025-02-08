@@ -1,78 +1,113 @@
 package com.example.state.camera.data.datasource
 
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
+
+
+import androidx.core.content.FileProvider
+
+
 import java.io.File
+import java.io.IOException
 
 class CameraService(private val context: Context) {
 
-    private var imageCapture: ImageCapture? = null
+    fun getPhotoUri(context: Context): Pair<Uri, String>? {
+        return try {
+            // 📌 Obtiene la ruta correcta de almacenamiento permitida
+            val picturesDir = File(context.getExternalFilesDir(null), "Pictures/MyApp")
+            if (!picturesDir.exists()) picturesDir.mkdirs() // Crea la carpeta si no existe
 
-    fun getImageCapture(): ImageCapture {
-        return imageCapture ?: run {
-            // Inicializa ImageCapture si aún no está configurado
-            imageCapture = ImageCapture.Builder().build()
-            imageCapture!!
-        }
-    }
+            val photoFile = File(picturesDir, "IMG_${System.currentTimeMillis()}.jpg")
 
-    fun startCamera(
-        lifecycleOwner: LifecycleOwner,
-        cameraProvider: ProcessCameraProvider,
-        preview: Preview,
-        previewView: PreviewView
-    ) {
-        try {
-            cameraProvider.unbindAll()
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            // Configura y vincula ImageCapture
-            imageCapture = ImageCapture.Builder().build()
-
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                preview,
-                imageCapture // Vincula ImageCapture
+            // 📌 Genera la URI con FileProvider
+            val photoUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider", // 📌 Asegúrate de que coincide con el Manifest
+                photoFile
             )
 
-            preview.setSurfaceProvider(previewView.surfaceProvider)
-
-            Log.d("CameraService", "Cámara vinculada exitosamente")
+            Log.d("CameraService", "✅ Archivo creado en: ${photoFile.absolutePath}")
+            Pair(photoUri, photoFile.absolutePath) // 📌 Retorna la URI y la ruta absoluta
         } catch (e: Exception) {
-            Log.e("CameraService", "Error al iniciar la cámara: ${e.message}")
+            Log.e("CameraService", "❌ Error al generar URI: ${e.message}")
+            null
         }
     }
 
-    fun takePicture() {
-        val imageCapture = imageCapture ?: run {
-            Log.e("CameraService", "ImageCapture no está configurado correctamente.")
-            return
+
+
+    fun takePicture(): Uri? {
+        return try {
+            val tempFile = File.createTempFile("IMG_", ".jpg", context.cacheDir)
+            val savedFile = saveToLocalFolder(tempFile)
+
+            if (savedFile != null) {
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    savedFile
+                )
+                Log.d("CameraService", "✅ Imagen guardada y URI generada: $uri")
+                uri
+            } else {
+                Log.e("CameraService", "❌ No se pudo guardar la imagen.")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("CameraService", "❌ Error al capturar la imagen: ${e.message}")
+            null
+        }
+    }
+
+
+
+    private fun saveToGallery(context: Context, imageFile: File): Uri? {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, imageFile.name)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyApp") // Se guarda en "Galería > Pictures > MyApp"
         }
 
-        val outputFile = File(context.externalCacheDir, "captured_image.jpg")
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
+        val resolver = context.contentResolver
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(context), object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                Log.d("CameraService", "Imagen guardada en: ${outputFileResults.savedUri}")
+        if (uri != null) {
+            resolver.openOutputStream(uri)?.use { outputStream ->
+                imageFile.inputStream().copyTo(outputStream)
             }
+            Log.d("CameraService", "✅ Imagen guardada en la galería: $uri")
+        } else {
+            Log.e("CameraService", "❌ Error al guardar en la galería")
+        }
 
-            override fun onError(exception: ImageCaptureException) {
-                Log.e("CameraService", "Error al capturar la imagen: ${exception.message}")
-            }
-        })
+        return uri
     }
+
+    private fun saveToLocalFolder(imageFile: File): File? {
+        return try {
+            val localFolder = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "MyAppImages")
+            if (!localFolder.exists()) {
+                localFolder.mkdirs() // Crear la carpeta si no existe
+            }
+
+            val localFile = File(localFolder, imageFile.name)
+            imageFile.copyTo(localFile, overwrite = true)
+            Log.d("CameraService", "✅ Imagen guardada en carpeta local: ${localFile.absolutePath}")
+            localFile
+        } catch (e: Exception) {
+            Log.e("CameraService", "❌ Error al guardar en carpeta local: ${e.message}")
+            null
+        }
+    }
+
+
+
+
 }
 
 

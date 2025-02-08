@@ -1,49 +1,94 @@
 package com.example.state
 
-import android.os.Bundle
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.enableEdgeToEdge
 import androidx.core.content.ContextCompat
 import com.example.state.core.navigation.NavigationWrapper
 
-class MainActivity : ComponentActivity() {
 
-    // Declara el launcher para pedir permiso de cámara
-    private lateinit var requestCameraPermission: ActivityResultLauncher<String>
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        // Inicializa el launcher de permisos
-        requestCameraPermission = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                Toast.makeText(this, "Permiso de cámara concedido", Toast.LENGTH_SHORT).show()
+        // Verificar permisos al inicio
+        checkPermissions()
+
+        setContent {
+            NavigationWrapper()
+        }
+    }
+
+    private fun checkPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        // Verificar permisos de cámara
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+
+        // Verificar permisos de lectura de imágenes (Android 14+)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.READ_MEDIA_IMAGES)
+        }
+
+        // Solicitar permisos si es necesario
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            Toast.makeText(this, "Todos los permisos concedidos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestPermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions[Manifest.permission.CAMERA] == true &&
+                permissions[Manifest.permission.READ_MEDIA_IMAGES] == true
+            ) {
+                Toast.makeText(this, "Permisos concedidos", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Permisos denegados. Actívalos en Configuración.", Toast.LENGTH_LONG).show()
             }
         }
 
-        // Verificamos los permisos al inicio de la actividad
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Si no tenemos permisos, los solicitamos
-            requestCameraPermission.launch(Manifest.permission.CAMERA)
-        }
+    // Manejo del ciclo de vida para debug
+    override fun onStart() {
+        super.onStart()
+        Log.d("MainActivity", "onStart llamado")
+    }
 
-        setContent {
-            NavigationWrapper() // Tu contenedor de navegación
-        }
+    override fun onResume() {
+        super.onResume()
+        Log.d("MainActivity", "onResume llamado")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("MainActivity", "onPause llamado")
+        // Libera recursos si es necesario
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("MainActivity", "onStop llamado")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("MainActivity", "onDestroy llamado")
     }
 }

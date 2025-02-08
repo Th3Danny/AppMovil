@@ -17,6 +17,8 @@ lifecycleViewModelKtx = "2.8.7"
 navigationCompose = "2.8.5"
 kotlinSerialization = "1.6.3"
 cameraX = "1.1.0"
+coil = "2.1.0"
+appcompat = "1.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +49,7 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version = "1.4.1" }
 
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 # Iconos de Material 2
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material2" }
@@ -54,6 +57,7 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 # Navegación
 androidx-navigation-compose = { group =  'androidx.navigation', name = 'navigation-compose', version.ref = 'navigationCompose' }
 kotlinx-serialization-json = { group = 'org.jetbrains.kotlinx', name = 'kotlinx-serialization-json-jvm', version.ref = 'kotlinSerialization' }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

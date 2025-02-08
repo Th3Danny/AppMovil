@@ -7,9 +7,12 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!-- Permiso para acceder a la cámara -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -24,8 +27,23 @@
         android:theme="@style/Theme.State"
         tools:targetApi="31">
 
+        <!-- Declaración del FileProvider -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+
+
+        <!-- Actividad principal -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.State">
@@ -36,5 +54,4 @@
         </activity>
 
     </application>
-
 </manifest>
