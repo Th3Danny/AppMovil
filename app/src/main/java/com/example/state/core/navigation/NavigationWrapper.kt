@@ -1,16 +1,11 @@
 package com.example.state.core.navigation
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,6 +34,7 @@ import com.example.state.register.presentation.RegisterViewModel
 import com.example.state.register.presentation.RegisterViewModelFactory
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("RestrictedApi")
 @Composable
 fun NavigationWrapper() {
@@ -59,7 +55,7 @@ fun NavigationWrapper() {
     // Configurar la cámara correctamente
     val context = LocalContext.current
     val cameraService = CameraService(context)
-    val cameraRepository = CameraRepository(cameraService) // ❌ Eliminado el `context`
+    val cameraRepository = CameraRepository(cameraService)
     val cameraUseCase = CameraUseCase(cameraRepository)
 
     // Crear el factory y ViewModel para la cámara
@@ -102,7 +98,7 @@ fun NavigationWrapper() {
 
         composable("Camera") {
             val cameraViewModel: CameraViewModel = viewModel(factory = cameraViewModelFactory)
-            CameraScreen(cameraViewModel = cameraViewModel) // ✅ Ahora se usa correctamente
+            CameraScreen(cameraViewModel = cameraViewModel)
         }
     }
 }

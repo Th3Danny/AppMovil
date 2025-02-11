@@ -2,21 +2,14 @@ package com.example.state.camera.presentation
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -27,9 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.io.File
 
 
@@ -85,13 +76,12 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
         if (hasPermission) {
-            // Botón para abrir la cámara
             Button(onClick = {
                 val intent = cameraViewModel.getCameraIntent(context)
                 if (intent != null) {
-                    cameraLauncher.launch(intent) // Lanzar el Intent de la cámara
+                    cameraLauncher.launch(intent)
                 } else {
-                    Log.e("CameraScreen", "❌ No se pudo generar el Intent de cámara.")
+                    Log.e("CameraScreen", "no se pudo generar el Intent de cámara.")
                 }
             }) {
                 Text(text = "Capturar Imagen")
@@ -114,7 +104,7 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
                                 modifier = Modifier.size(200.dp)
                             )
                         } else {
-                            Log.e("CameraScreen", "❌ No se pudo cargar el bitmap de la imagen.")
+                            Log.e("CameraScreen", "No se pudo cargar el bitmap de la imagen.")
                             Text(
                                 "Error al cargar la imagen",
                                 color = MaterialTheme.colorScheme.error
@@ -123,7 +113,7 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
                     } else {
                         Log.e(
                             "CameraScreen",
-                            "❌ Archivo de imagen no encontrado en: ${correctedFile.absolutePath}"
+                            "Archivo de imagen no encontrado en: ${correctedFile.absolutePath}"
                         )
                         Text("Archivo no encontrado", color = MaterialTheme.colorScheme.error)
                     }
