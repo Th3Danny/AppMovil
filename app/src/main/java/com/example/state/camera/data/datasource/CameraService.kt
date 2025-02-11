@@ -19,7 +19,8 @@ class CameraService(private val context: Context) {
     fun getPhotoUri(context: Context): Pair<Uri, String>? {
         return try {
             // 📌 Obtiene la ruta correcta de almacenamiento permitida
-            val picturesDir = File(context.getExternalFilesDir(null), "Pictures/MyApp")
+            val picturesDir = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "MyApp")
+
             if (!picturesDir.exists()) picturesDir.mkdirs() // Crea la carpeta si no existe
 
             val photoFile = File(picturesDir, "IMG_${System.currentTimeMillis()}.jpg")

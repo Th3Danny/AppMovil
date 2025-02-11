@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,8 +44,14 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
     // Estado para verificar permisos
     var hasPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    ) == PackageManager.PERMISSION_GRANTED
         )
     }
 
@@ -69,7 +76,7 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        cameraViewModel.handleCameraResult(result.resultCode) // Llamar a handleCameraResult
+        cameraViewModel.handleCameraResult(result.resultCode, context)
     }
 
     Column(
@@ -92,9 +99,14 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
 
             captureResult?.let { result ->
                 if (result.success) {
-                    val imageFile = File(result.imageUri) // Usamos la ruta absoluta directamente
-                    if (imageFile.exists()) {
-                        val imageBitmap = BitmapFactory.decodeFile(imageFile.absolutePath)?.asImageBitmap()
+                    val correctedFile = File(
+                        context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                        "MyApp/${File(result.imageUri).name}"
+                    )
+
+                    if (correctedFile.exists()) {
+                        val imageBitmap =
+                            BitmapFactory.decodeFile(correctedFile.absolutePath)?.asImageBitmap()
                         if (imageBitmap != null) {
                             Image(
                                 bitmap = imageBitmap,
@@ -103,36 +115,35 @@ fun CameraScreen(cameraViewModel: CameraViewModel) {
                             )
                         } else {
                             Log.e("CameraScreen", "❌ No se pudo cargar el bitmap de la imagen.")
-                            Text("Error al cargar la imagen", color = MaterialTheme.colorScheme.error)
+                            Text(
+                                "Error al cargar la imagen",
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     } else {
-                        Log.e("CameraScreen", "❌ Archivo de imagen no encontrado en: ${imageFile.absolutePath}")
+                        Log.e(
+                            "CameraScreen",
+                            "❌ Archivo de imagen no encontrado en: ${correctedFile.absolutePath}"
+                        )
                         Text("Archivo no encontrado", color = MaterialTheme.colorScheme.error)
                     }
+
                 } else {
                     Text(
-                        text = "Error al capturar la imagen",
+                        text = "Se necesita permiso para usar la cámara",
                         color = MaterialTheme.colorScheme.error
                     )
+                    Button(onClick = {
+                        permissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.READ_MEDIA_IMAGES
+                            )
+                        )
+                    }) {
+                        Text("Solicitar Permisos")
+                    }
                 }
-            }
-
-
-
-        } else {
-            Text(
-                text = "Se necesita permiso para usar la cámara",
-                color = MaterialTheme.colorScheme.error
-            )
-            Button(onClick = {
-                permissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_MEDIA_IMAGES
-                    )
-                )
-            }) {
-                Text("Solicitar Permisos")
             }
         }
     }

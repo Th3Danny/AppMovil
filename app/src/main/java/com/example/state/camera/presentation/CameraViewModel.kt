@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -11,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.state.camera.domain.CameraUseCase
 import com.example.state.camera.data.model.CameraCaptureResult
+import java.io.File
 
 class CameraViewModel(private val cameraUseCase: CameraUseCase) : ViewModel() {
 
@@ -46,15 +48,30 @@ class CameraViewModel(private val cameraUseCase: CameraUseCase) : ViewModel() {
 
 
 
-    fun handleCameraResult(resultCode: Int) {
+    fun handleCameraResult(resultCode: Int, context: Context) {
         if (resultCode == Activity.RESULT_OK && photoFilePath != null) {
-            Log.d("CameraViewModel", "✅ Foto capturada correctamente en: $photoFilePath")
-            _captureResult.postValue(CameraCaptureResult(photoFilePath!!, true)) // Usar ruta absoluta
+            val file = File(photoFilePath!!)
+            if (file.exists()) {
+                Log.d("CameraViewModel", "✅ Foto capturada correctamente en: ${file.absolutePath}")
+                _captureResult.postValue(CameraCaptureResult(file.absolutePath, true))
+            } else {
+                // 🔥 CORREGIR la ruta antes de marcar error
+                val correctedFile = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "MyApp/${File(photoFilePath!!).name}")
+
+                if (correctedFile.exists()) {
+                    Log.d("CameraViewModel", "✅ Imagen encontrada en: ${correctedFile.absolutePath}")
+                    _captureResult.postValue(CameraCaptureResult(correctedFile.absolutePath, true))
+                } else {
+                    Log.e("CameraViewModel", "❌ Archivo de imagen no encontrado en: ${correctedFile.absolutePath}")
+                    _captureResult.postValue(CameraCaptureResult("", false))
+                }
+            }
         } else {
             Log.e("CameraViewModel", "❌ Error al manejar el resultado de la cámara.")
             _captureResult.postValue(CameraCaptureResult("", false))
         }
     }
+
 
 
 }
